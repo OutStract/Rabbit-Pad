@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { hi } from './utils/hi.ts'
-import { dirTree, readDoc } from './utils/fileHandling.ts'
+import { dirTree, readDoc, writeFile } from './utils/fileHandling.ts'
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -20,6 +20,11 @@ ipcMain.handle('tree', (_, path) => {
 ipcMain.handle('file', (_, path) => {
   console.log('file called with path:', path)
   return readDoc(path)
+})
+
+ipcMain.handle('write', (_, path, content) => {
+  console.log('Write called with path:', path)
+  return writeFile(path, content)
 })
 
 

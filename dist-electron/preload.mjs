@@ -21,5 +21,6 @@ electron.contextBridge.exposeInMainWorld("ipcRenderer", {
   // ...
   hi: () => electron.ipcRenderer.invoke("hi"),
   tree: (path) => electron.ipcRenderer.invoke("tree", path),
-  file: (path) => electron.ipcRenderer.invoke("file", path)
+  file: (path) => electron.ipcRenderer.invoke("file", path),
+  write: (path, content) => electron.ipcRenderer.invoke("write", path, content)
 });

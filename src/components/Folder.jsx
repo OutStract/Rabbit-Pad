@@ -44,7 +44,7 @@ function Tree({ node, path }) {
 
       <ul className="pl-5">
         {node.children?.map((child) => (
-          <Tree node={child} key={child.name} path={path} /> //Dont understand use of path={path}
+          <Tree node={child} key={child.name} path={path} />
         ))}
       </ul>
     </li>

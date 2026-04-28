@@ -26,6 +26,8 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 
   tree: (path) => ipcRenderer.invoke('tree', path),
 
-  file: (path) => ipcRenderer.invoke('file', path)
+  file: (path) => ipcRenderer.invoke('file', path),
+
+  write: (path, content) => ipcRenderer.invoke('write', path, content)
 
 })

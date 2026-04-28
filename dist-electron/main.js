@@ -33,6 +33,16 @@ function readDoc(path2) {
   const doc = fs.readFileSync(path2, "utf8");
   return doc;
 }
+async function writeFile(path2, content) {
+  const tempPath = path2 + ".tmp";
+  try {
+    await fs.promises.writeFile(tempPath, content, "utf-8");
+    await fs.promises.rename(tempPath, path2);
+    console.log("File saved");
+  } catch (err) {
+    console.log(err);
+  }
+}
 createRequire(import.meta.url);
 const __dirname$1 = path$1.dirname(fileURLToPath(import.meta.url));
 ipcMain.handle("hi", () => {
@@ -45,6 +55,10 @@ ipcMain.handle("tree", (_, path2) => {
 ipcMain.handle("file", (_, path2) => {
   console.log("file called with path:", path2);
   return readDoc(path2);
+});
+ipcMain.handle("write", (_, path2, content) => {
+  console.log("Write called with path:", path2);
+  return writeFile(path2, content);
 });
 process.env.APP_ROOT = path$1.join(__dirname$1, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];

@@ -3,11 +3,12 @@ import Header from './components/Header'
 import Folder from './components/Folder'
 import TextArea from './components/TextArea'
 import TimeLine from './components/TimeLine'
-import { useState } from 'react'
+import { act, useState } from 'react'
 
 
 function App() {
   const [activePath, setActivePath] = useState("")
+  console.log("App.ts",activePath)
   return (
     <div className='h-screen overflow-hidden flex flex-col'>
       <Header className="h-12 w-full bg-zinc-800"/>
