@@ -15,10 +15,10 @@ function App() {
   console.log("Tree Refresh Count ", freshTree)
   return (
     <div className='h-screen overflow-hidden flex flex-col'>
-      <Header className="h-12 w-full bg-zinc-800"/>
+      {/* <Header className="h-12 w-full bg-zinc-800"/> */}
       <div className='flex flex-1 w-full'>
         <div>
-        <FileOps clicked = {handleAction}/>
+        <FileOps clicked = {handleAction} activePath = {activePath}/>
         <Folder path = {setActivePath} freshTree = {freshTree} />
         </div>
         <TextArea path = {activePath}/>

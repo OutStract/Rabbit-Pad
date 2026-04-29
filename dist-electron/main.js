@@ -52,6 +52,30 @@ function createFile(dirPath, content, name) {
   }
   fs.writeFileSync(filePath, content);
 }
+async function deleteFile(dirPath, filePath) {
+  let trashPath = path.join(dirPath, ".trash");
+  let i = 1;
+  const fileName = path.basename(filePath);
+  let newName = fileName;
+  console.log("dirPath: ", dirPath);
+  console.log("filePath: ", filePath);
+  try {
+    if (!fs.existsSync(trashPath)) {
+      fs.mkdirSync(trashPath);
+    }
+    while (fs.existsSync(path.join(trashPath, newName))) {
+      newName = `${i}-${fileName}`;
+      i++;
+    }
+    const finalPath = path.join(trashPath, newName);
+    console.log("filePath inside try: ", filePath);
+    console.log("finalPath: ", finalPath);
+    await fs.promises.rename(filePath, finalPath);
+    console.log("File moved to: ", finalPath);
+  } catch (err) {
+    console.log(err);
+  }
+}
 createRequire(import.meta.url);
 const __dirname$1 = path$1.dirname(fileURLToPath(import.meta.url));
 ipcMain.handle("hi", () => {
@@ -70,8 +94,12 @@ ipcMain.handle("write", (_, path2, content) => {
   return writeFile(path2, content);
 });
 ipcMain.handle("create", (_, dirPath, content, name) => {
-  console.log("Create called with path:", path$1);
+  console.log("Create called with path:", dirPath);
   return createFile(dirPath, content, name);
+});
+ipcMain.handle("delete", (_, dirPath, filePath) => {
+  console.log("Delete called with path:", filePath);
+  return deleteFile(dirPath, filePath);
 });
 process.env.APP_ROOT = path$1.join(__dirname$1, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];

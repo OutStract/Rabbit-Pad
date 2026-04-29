@@ -6,7 +6,7 @@ export default function Folder({ path, freshTree }) {
 
   useEffect(() => {
     async function loadFiles() {
-      const result = await window.ipcRenderer.tree('./data')
+      const result = await window.ipcRenderer.tree('./data/Projects')
       setFiles(result)
     }
     loadFiles()

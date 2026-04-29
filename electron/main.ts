@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { hi } from './utils/hi.ts'
-import { dirTree, readDoc, writeFile, createFile } from './utils/fileHandling.ts'
+import { dirTree, readDoc, writeFile, createFile, deleteFile } from './utils/fileHandling.ts'
 
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -28,10 +28,14 @@ ipcMain.handle('write', (_, path, content) => {
 })
 
 ipcMain.handle('create', (_, dirPath, content, name) => {
-  console.log('Create called with path:', path)
+  console.log('Create called with path:', dirPath)
   return createFile(dirPath, content, name)
 })
 
+ipcMain.handle('delete', (_, dirPath, filePath) => {
+  console.log('Delete called with path:', filePath)
+  return deleteFile(dirPath, filePath)
+})
 
 
 // The built directory structure

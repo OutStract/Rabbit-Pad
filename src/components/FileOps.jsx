@@ -1,10 +1,13 @@
 import React, { useState } from 'react'
 
-export default function FileOps({ clicked }) {
+export default function FileOps({ clicked, activePath }) {
 
-    const dirPath = './data'
+    const dirPath = './data/Projects'
+    const trashDir = './data'
     const content = ""
     const name = 'untitled'
+
+    console.log("FileOps activePath: ",activePath)
 
     const buttons = "px-4 bg-zinc-700 rounded-2x2 text-zinc-50"
 
@@ -14,7 +17,9 @@ export default function FileOps({ clicked }) {
         <button className={buttons} onClick={async() => {
             await window.ipcRenderer.create(dirPath, content, name)
             clicked()}}>CF</button>
-        <button className={buttons}>DF</button>
+        <button className={buttons} onClick={async() => {
+            await window.ipcRenderer.delete(trashDir, activePath)
+            clicked()}}>DF</button>
         <button className={buttons}>RF</button>
 
     </div>

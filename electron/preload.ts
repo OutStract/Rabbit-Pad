@@ -30,6 +30,8 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 
   write: (path, content) => ipcRenderer.invoke('write', path, content),
 
-  create: (dirPath, content, name) => ipcRenderer.invoke('create', dirPath, content, name)
+  create: (dirPath, content, name) => ipcRenderer.invoke('create', dirPath, content, name),
+
+  delete: (dirPath, filePath) => ipcRenderer.invoke('delete', dirPath, filePath )
 
 })
