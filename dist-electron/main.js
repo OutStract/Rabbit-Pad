@@ -43,6 +43,15 @@ async function writeFile(path2, content) {
     console.log(err);
   }
 }
+function createFile(dirPath, content, name) {
+  let filePath = path.join(dirPath, `${name}.md`);
+  let i = 1;
+  while (fs.existsSync(filePath)) {
+    filePath = path.join(dirPath, `${name}-${i}.md`);
+    i++;
+  }
+  fs.writeFileSync(filePath, content);
+}
 createRequire(import.meta.url);
 const __dirname$1 = path$1.dirname(fileURLToPath(import.meta.url));
 ipcMain.handle("hi", () => {
@@ -59,6 +68,10 @@ ipcMain.handle("file", (_, path2) => {
 ipcMain.handle("write", (_, path2, content) => {
   console.log("Write called with path:", path2);
   return writeFile(path2, content);
+});
+ipcMain.handle("create", (_, dirPath, content, name) => {
+  console.log("Create called with path:", path$1);
+  return createFile(dirPath, content, name);
 });
 process.env.APP_ROOT = path$1.join(__dirname$1, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];

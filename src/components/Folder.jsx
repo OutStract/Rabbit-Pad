@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function Folder({ path }) {
+export default function Folder({ path, freshTree }) {
   const [files, setFiles] = useState([])
 
 
@@ -10,7 +10,7 @@ export default function Folder({ path }) {
       setFiles(result)
     }
     loadFiles()
-  }, [])
+  }, [freshTree])
 
   return (
     <div className="flex flex-col font-medium bg-zinc-800 pl-10.5 h-full min-w-64 border border-solid border-zinc-600">

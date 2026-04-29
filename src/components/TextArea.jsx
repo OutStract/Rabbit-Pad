@@ -6,6 +6,21 @@ export default function TextArea({ path }) {
 
   const [isDirty, setIsDirty] = useState(false)
 
+  const [title, setTitle] = useState("Add title")
+
+  useEffect(() => {
+    const titleSplit = path.split(/[\\/]/);
+    const lastIndex = titleSplit.at(-1)
+    const result = lastIndex.replace(/\.md$/, "")
+    console.log("Title", result)
+    setTitle(result)
+  },[path])
+
+
+
+  
+  
+
 
     useEffect(() => {
     async function loadFiles() {
@@ -33,6 +48,7 @@ export default function TextArea({ path }) {
   return (
     <div className="h-full  w-full bg-zinc-700 border border-solid border-zinc-600">
       <div className="flex flex-col h-full ml-18">
+        <h1>{title}</h1>
         <textarea
           className="bg-zinc-700 outline-none h-full w-full px-6 pt-6 resize-none w-125 text-zinc-300 overflow-x-auto text-base/8"
           value={content} onChange={e => {

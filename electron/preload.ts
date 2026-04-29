@@ -28,6 +28,8 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 
   file: (path) => ipcRenderer.invoke('file', path),
 
-  write: (path, content) => ipcRenderer.invoke('write', path, content)
+  write: (path, content) => ipcRenderer.invoke('write', path, content),
+
+  create: (dirPath, content, name) => ipcRenderer.invoke('create', dirPath, content, name)
 
 })
