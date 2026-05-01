@@ -16,6 +16,7 @@ function dirTree(dir) {
       result.push({
         name: entry.name,
         type: "folder",
+        path: fullPath,
         children: dirTree(fullPath)
         // recursion returns data now
       });
@@ -52,6 +53,19 @@ function createFile(dirPath, content, name) {
   }
   fs.writeFileSync(filePath, content);
 }
+async function createFolder(dirPath, name) {
+  let folderPath = path.join(dirPath, name);
+  let i = 1;
+  while (fs.existsSync(folderPath)) {
+    folderPath = path.join(dirPath, `${name}-${i}`);
+    i++;
+  }
+  try {
+    await fs.promises.mkdir(folderPath);
+  } catch (err) {
+    console.log(err);
+  }
+}
 async function deleteFile(dirPath, filePath) {
   let trashPath = path.join(dirPath, ".trash");
   let i = 1;
@@ -72,6 +86,24 @@ async function deleteFile(dirPath, filePath) {
     console.log("finalPath: ", finalPath);
     await fs.promises.rename(filePath, finalPath);
     console.log("File moved to: ", finalPath);
+  } catch (err) {
+    console.log(err);
+  }
+}
+async function nameChange(dirPath, name) {
+  const titleSplit = dirPath.split(/[\\/]/);
+  titleSplit.pop();
+  console.log("lastIndex", titleSplit);
+  let newName = path.join(...titleSplit, name);
+  console.log("New Name ", newName);
+  let i = 1;
+  try {
+    while (fs.existsSync(newName)) {
+      newName = path.join(...titleSplit, `${i}-${name}`);
+      i++;
+    }
+    await fs.promises.rename(dirPath, newName);
+    return newName;
   } catch (err) {
     console.log(err);
   }
@@ -97,9 +129,18 @@ ipcMain.handle("create", (_, dirPath, content, name) => {
   console.log("Create called with path:", dirPath);
   return createFile(dirPath, content, name);
 });
+ipcMain.handle("createFolder", (_, dirPath, name) => {
+  console.log("CreateFolder called with path:", dirPath);
+  return createFolder(dirPath, name);
+});
 ipcMain.handle("delete", (_, dirPath, filePath) => {
   console.log("Delete called with path:", filePath);
   return deleteFile(dirPath, filePath);
+});
+ipcMain.handle("changeName", async (_, dirPath, name) => {
+  console.log("Rename called with path: ", dirPath);
+  const newPath = await nameChange(dirPath, name);
+  return { success: true, newPath };
 });
 process.env.APP_ROOT = path$1.join(__dirname$1, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];

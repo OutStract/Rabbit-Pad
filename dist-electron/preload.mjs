@@ -24,5 +24,7 @@ electron.contextBridge.exposeInMainWorld("ipcRenderer", {
   file: (path) => electron.ipcRenderer.invoke("file", path),
   write: (path, content) => electron.ipcRenderer.invoke("write", path, content),
   create: (dirPath, content, name) => electron.ipcRenderer.invoke("create", dirPath, content, name),
-  delete: (dirPath, filePath) => electron.ipcRenderer.invoke("delete", dirPath, filePath)
+  createFolder: (dirPath, name) => electron.ipcRenderer.invoke("createFolder", dirPath, name),
+  delete: (dirPath, filePath) => electron.ipcRenderer.invoke("delete", dirPath, filePath),
+  changeName: (dirPath, name) => electron.ipcRenderer.invoke("changeName", dirPath, name)
 });
