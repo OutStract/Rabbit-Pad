@@ -36,6 +36,8 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 
   delete: (dirPath, filePath) => ipcRenderer.invoke('delete', dirPath, filePath),
 
-  changeName: (dirPath, name) => ipcRenderer.invoke('changeName', dirPath, name)
+  changeName: (dirPath, name) => ipcRenderer.invoke('changeName', dirPath, name),
+
+  move: (source, destination) => ipcRenderer.invoke('move', source, destination)
 
 })

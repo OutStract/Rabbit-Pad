@@ -30,9 +30,14 @@ function dirTree(dir) {
   }
   return result;
 }
-function readDoc(path2) {
-  const doc = fs.readFileSync(path2, "utf8");
-  return doc;
+async function readDoc(path2) {
+  try {
+    const doc = await fs.promises.readFile(path2, "utf8");
+    return { ok: true, value: doc };
+  } catch (err) {
+    console.log(err);
+    return { ok: false, value: "" };
+  }
 }
 async function writeFile(path2, content) {
   const tempPath = path2 + ".tmp";
@@ -47,11 +52,16 @@ async function writeFile(path2, content) {
 function createFile(dirPath, content, name) {
   let filePath = path.join(dirPath, `${name}.md`);
   let i = 1;
-  while (fs.existsSync(filePath)) {
-    filePath = path.join(dirPath, `${name}-${i}.md`);
-    i++;
+  try {
+    while (fs.existsSync(filePath)) {
+      filePath = path.join(dirPath, `${name}-${i}.md`);
+      i++;
+    }
+    fs.writeFileSync(filePath, content);
+    return filePath;
+  } catch (err) {
+    console.log(err);
   }
-  fs.writeFileSync(filePath, content);
 }
 async function createFolder(dirPath, name) {
   let folderPath = path.join(dirPath, name);
@@ -108,6 +118,26 @@ async function nameChange(dirPath, name) {
     console.log(err);
   }
 }
+async function moveDir(source, destination) {
+  const sourceArr = source.split(/[\\/]/);
+  const sourceName = sourceArr.pop();
+  console.log("SourceName", sourceName);
+  let i = 1;
+  let newPath = path.join(destination, sourceName);
+  console.log("newPath: ", newPath);
+  try {
+    while (fs.existsSync(newPath)) {
+      newPath = path.join(destination, `${i}-${sourceName}`);
+      i++;
+      console.log("Renamed Path :", newPath);
+    }
+    await fs.promises.rename(source, newPath);
+    return { ok: true, path: newPath };
+  } catch (err) {
+    console.log(err);
+    return { ok: false, error: err };
+  }
+}
 createRequire(import.meta.url);
 const __dirname$1 = path$1.dirname(fileURLToPath(import.meta.url));
 ipcMain.handle("hi", () => {
@@ -117,9 +147,10 @@ ipcMain.handle("tree", (_, path2) => {
   console.log("tree called with path:", path2);
   return dirTree(path2);
 });
-ipcMain.handle("file", (_, path2) => {
+ipcMain.handle("file", async (_, path2) => {
   console.log("file called with path:", path2);
-  return readDoc(path2);
+  const result = await readDoc(path2);
+  return result;
 });
 ipcMain.handle("write", (_, path2, content) => {
   console.log("Write called with path:", path2);
@@ -127,7 +158,8 @@ ipcMain.handle("write", (_, path2, content) => {
 });
 ipcMain.handle("create", (_, dirPath, content, name) => {
   console.log("Create called with path:", dirPath);
-  return createFile(dirPath, content, name);
+  const newPath = createFile(dirPath, content, name);
+  return { success: true, newPath };
 });
 ipcMain.handle("createFolder", (_, dirPath, name) => {
   console.log("CreateFolder called with path:", dirPath);
@@ -141,6 +173,11 @@ ipcMain.handle("changeName", async (_, dirPath, name) => {
   console.log("Rename called with path: ", dirPath);
   const newPath = await nameChange(dirPath, name);
   return { success: true, newPath };
+});
+ipcMain.handle("move", async (_, source, destination) => {
+  console.log("Moved File to path:", destination);
+  const result = await moveDir(source, destination);
+  return result;
 });
 process.env.APP_ROOT = path$1.join(__dirname$1, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];

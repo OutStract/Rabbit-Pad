@@ -14,7 +14,7 @@ export default function Folder({ path, freshTree, setFreshTree, selectedNode, se
   }, [freshTree])
 
   return (
-    <div className="flex flex-col font-medium bg-zinc-800 pl-10.5 h-full min-w-64 border border-solid border-zinc-600">
+    <div id='folder' className="flex flex-col font-medium bg-zinc-800 pl-10.5 h-full min-w-64 border border-solid border-zinc-600 overflow-y-auto">
       <div>
         {files.map((file) => (
           <Tree
@@ -35,21 +35,26 @@ export default function Folder({ path, freshTree, setFreshTree, selectedNode, se
 
 function Tree({ node, path, selectedNode, setSelectedNode, renamePath, setRenamePath, refreshTree }) {
 
- const isSelected = selectedNode === node.path
+ const isSelected = selectedNode.includes(node.path)
  const isRenaming = renamePath === node.path
+
 
  const [tempName, setTempName] = useState("")
 
- console.log("SelectedNode:", selectedNode)
-
- console.log("Rename path: ", renamePath)
+ const [isOpen, setIsOpen] = useState(false)
 
 async function handleRename(type) {
-  let userInput = tempName
-    .replace(/[<>:"/\\|?*]/g, "")
+  let userInput = tempName.trim(" ")
+                .replace(/[<>:"/\\|?*]/g, "")
+  console.log("trimmed: ", userInput)
 
-  if (!userInput) {
-    return // or show error
+      
+      
+  if(!userInput || userInput === node.name) { 
+    setRenamePath("")
+    refreshTree()
+    return
+    
   }
 
   if (type === "file") {
@@ -67,6 +72,9 @@ async function handleRename(type) {
   }
 
   const result = await window.ipcRenderer.changeName(node.path, userInput)
+  if(result.success) {
+    setSelectedNode(prev => [...prev, result.newPath] )
+  }
 
   if (result.success) {
     if (type === "file") {
@@ -77,13 +85,16 @@ async function handleRename(type) {
   }
 }
 
+
+
+
   return (
     <div>
       {isRenaming ? (
           <input
             value={tempName}
             autoFocus
-            onChange={(e) => setTempName(e.target.value)}
+            onChange={(e) => {setTempName(e.target.value)}}
             onBlur={() => handleRename(node.type)}
             onKeyDown={(e) => {
               if(e.key === "Enter") {
@@ -94,25 +105,53 @@ async function handleRename(type) {
               }}}
           />
       ) : (
-        <div className= {isSelected ? "border text-zinc-50" : "text-zinc-400"}
-        onClick={async () => {
-          setSelectedNode(node.path)
-          if (node.type === "file") {
-            const result = node.path
-            path(node.path)
-            console.log(result)
-          }}}
+        <div draggable = 'true' 
+            // When user drag a folder without selecting it, so it will select it
+            onDragStart={() => {if(!selectedNode.includes(node.path)){
+                                  setSelectedNode([node.path])
+                          }}} 
+            // Needed for drop events to trigger, preventing default(opening the link and such) actions during the dragging
+            onDragOver={(ev) => ev.preventDefault()}
+
+            // async function checking if the drop place is a folder, if yes then it uses a for..of loop to iterate over the selected paths
+            onDrop={async () => {
+              if(node.type === "folder") {
+                for (const nodePath of selectedNode) {
+                   console.log(nodePath)
+                  await window.ipcRenderer.move(nodePath, node.path)
+              }
+              refreshTree()
+            }}}
+            className= {isSelected ? "flex gap-1 border text-zinc-50" : "flex gap-1 text-zinc-400"}
+
+        onClick={(e) => {
+          if (e.ctrlKey) {
+            setSelectedNode(prev =>
+              prev.includes(node.path)
+                ? prev.filter(p => p !== node.path)
+                : [...prev, node.path]
+            )
+          } else {
+            setSelectedNode([node.path])
+            if (node.type === "file") {
+              path(node.path)
+            }
+          }
+        }}
           onDoubleClick={() => {
             console.log("Double Clicked")
             setRenamePath(node.path)
             console.log(renamePath)
             setTempName(node.name)
           }}>
+            <div onClick={() => setIsOpen(prev => !prev)}>
+            {node.type === "folder" ? (isOpen ? <div className='text-green-300'>D</div> : <div>D</div>) : <div>F</div>}
+            </div>
         {node.name}
       </div>
       )}
       
-
+      {isOpen &&
       <div className="pl-5">
         {node.children?.map((child) => (
           <Tree node={child} 
@@ -126,6 +165,7 @@ async function handleRename(type) {
             />
         ))}
       </div>
+      }
     </div>
   )
 }

@@ -17,3 +17,21 @@ textarea::-webkit-scrollbar-thumb:hover {
     background: rgba(0,0,0,0.3);
     border-radius: 6px;
 }
+
+#folder::-webkit-scrollbar {
+    width:10px;
+}
+
+#folder::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#folder::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+}
+
+#folder::-webkit-scrollbar-thumb:hover {
+    background: rgba(0,0,0,0.5);
+    border-radius: 6px;
+}
